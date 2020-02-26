@@ -10,8 +10,10 @@ from user.models import User
 class ViewTest(AironeTestCase):
     def test_local_authentication(self):
         # When invalid user or password were specified, login processing would be failed.
-        self.assertFalse(self.client.login(username='invalid_user', password='invalid_passwd'))
-        self.assertFalse(self.client.login(username='guest', password='invalid_passwd'))
+        result = self.client.login(username='invalid_user', password='invalid_passwd')
+        self.assertFalse(result)
+        result = self.client.login(username='guest', password='invalid_passwd')
+        self.assertFalse(result)
 
     def test_success_local_authentication(self):
         # When both user and password were correct, it would be success.
@@ -37,7 +39,8 @@ class ViewTest(AironeTestCase):
 
     @mock.patch.object(ldap3.Connection, 'bind', mock.Mock(return_value=False))
     def test_fail_ldap_authentication_caused_by_invalid_password(self):
-        self.assertFalse(self.client.login(username='ldap_user', password='ldap_passwd'))
+        result = self.client.login(username='ldap_user', password='ldap_passwd')
+        self.assertFalse(result)
         self.assertFalse(User.objects.filter(username='ldap_user', is_active=True).exists())
 
     @mock.patch.object(ldap3.Connection, 'bind', mock.Mock(return_value=True))
